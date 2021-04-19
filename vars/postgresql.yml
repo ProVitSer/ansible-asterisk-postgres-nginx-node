@@ -1,0 +1,6 @@
+---
+postgresql_pkgs:
+  - postgresql-server
+  - postgresql-contrib
+  - postgresql-plpython
+  - python-psycopg2

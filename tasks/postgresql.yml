@@ -1,0 +1,76 @@
+- name: Importing specific distro variables
+  include_vars: "{{ item }}"
+  with_items:
+    - "postgresql.yml"
+
+- name: Ensuring all PostgreSQL pkgs are installed
+  yum:
+    name: "{{ postgresql_pkgs }}"
+    state: latest
+
+- name: Initialize postgres DB
+  command: /usr/bin/postgresql-setup initdb
+
+- name: Distribute Postgresql config files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/var/lib/pgsql/data/{{ item }}"
+    mode: 0600
+  with_items:
+    - pg_hba.conf
+  notify:
+    - restart_postgresql
+
+- name: Ensuring postgresql is started and enabled
+  service:
+    name: postgresql
+    state: started
+    enabled: True
+
+- name: Change user password
+  user:
+    name: postgres
+    update_password: on_create
+    password: "{{ pg_password }}"
+
+- name: Creating Users if not empty list
+  postgresql_user:
+    name: "{{ asterisk_cdr_user }}"
+    password: "{{ asterisk_cdr_password }}"
+    role_attr_flags: "NOCREATEDB,NOSUPERUSER,NOCREATEROLE"
+  become_user: postgres
+  loop_control:
+    label: "{{ asterisk_cdr_user }}"
+
+- name: Creating Postgresql Databases
+  postgresql_db: 
+    name: "{{ asterisk_cdr_db }}" 
+    owner: "{{ asterisk_cdr_user }}" 
+    encoding: UTF-8
+  become_user: postgres
+  loop_control:
+    label: "{{ asterisk_cdr_user }}"
+
+- name: Granting DB rights to identified user
+  postgresql_user:
+    name: "{{ asterisk_cdr_user }}"
+    password: "{{ asterisk_cdr_password }}"
+    role_attr_flags: "NOCREATEDB,NOSUPERUSER,NOCREATEROLE"
+    db: "{{ asterisk_cdr_db }}"
+    priv: 'ALL'
+  become_user: postgres
+  loop_control:
+    label: "{{ asterisk_cdr_user }}"
+
+- name: Copy cdr table
+  template:
+    src: cdr.sql.j2
+    dest: /usr/src/cdr.sql
+    owner: root
+    group: root
+    mode: 0777
+
+- name: Add some dummy data to our database
+  become: true
+  become_user: postgres
+  shell: psql {{ asterisk_cdr_db }} < /usr/src/cdr.sql

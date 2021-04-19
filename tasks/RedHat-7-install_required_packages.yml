@@ -1,0 +1,29 @@
+- name: Install epel repo
+  yum:
+    name: epel-release
+    state: present
+
+- name: Update system
+  yum:
+    name: "*"
+    state: latest
+  register: allupdate
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: Reboot machine after update and wait reconnect
+  reboot:
+    reboot_timeout: 3600
+  when: allupdate is changed
+  
+- name: Install the 'Development tools' package group
+  yum:
+    name: "@Development tools"
+    state: present
+
+- name: Install required packages
+  yum:
+    name: "{{ packages_required }}"
+    state: present

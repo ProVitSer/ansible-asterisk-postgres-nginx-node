@@ -1,0 +1,7 @@
+- name: Asterisk PGSQL
+  template:
+    src: cdr_pgsql.conf.j2
+    dest: /etc/asterisk/cdr_pgsql.conf
+    owner: asterisk
+    group: asterisk
+    mode: 0777

@@ -1,0 +1,127 @@
+---
+- name: Check Asterisk Installation
+  stat: path=/etc/init.d/asterisk
+  register: asterisk_status
+
+- name: Remove existing install source dir
+  file: "path={{ asterisk_src_dir }} state=absent"
+
+- name: Create install source dir
+  file: "path={{ asterisk_src_dir }} state=directory"
+
+- name: Download Asterisk source.
+  command: 'wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-{{ asterisk_version }}-current.tar.gz'
+  args:
+    chdir: /tmp
+  when: not asterisk_status.stat.exists
+
+- name: Extract Asterisk source.
+  unarchive:
+    src: "/tmp/asterisk-{{ asterisk_version }}-current.tar.gz"
+    dest: "{{ asterisk_src_dir }}"
+    remote_src: "yes"
+    extra_opts: ['--strip-components=1']
+
+- name: Let asterisk get mp3
+  shell: "./contrib/scripts/get_mp3_source.sh chdir={{ asterisk_src_dir }}"
+  when: not asterisk_status.stat.exists
+
+- name: Let asterisk install dependencies
+  shell: "./contrib/scripts/install_prereq install chdir={{ asterisk_src_dir }}"
+  when: not asterisk_status.stat.exists
+
+- name: Configure asterisk
+  command: "./configure --with-pjproject-bundled --with-jansson-bundled chdir={{ asterisk_src_dir }}"
+  when: not asterisk_status.stat.exists
+
+- name: Create menuselect.makeopts
+  command: "make menuselect.makeopts chdir={{ asterisk_src_dir }}"
+  when: not asterisk_status.stat.exists
+
+- name: Do a bit of menuselect configuration
+  command: "{{ item }} chdir={{ asterisk_src_dir }}"
+  with_items:
+    - 'menuselect/menuselect --enable format_mp3 
+    --enable CORE-SOUNDS-RU-WAV 
+    --enable CORE-SOUNDS-RU-ULAW  
+    --enable CORE-SOUNDS-RU-ALAW 
+    --enable CORE-SOUNDS-RU-GSM 
+    --enable EXTRA-SOUNDS-EN-WAV 
+    --enable EXTRA-SOUNDS-EN-ULAW 
+    --enable EXTRA-SOUNDS-EN-ALAW 
+    --enable EXTRA-SOUNDS-EN-GSM'
+  when: not asterisk_status.stat.exists
+
+- name: Make
+  command: "make chdir={{ asterisk_src_dir }}"
+  when: not asterisk_status.stat.exists
+
+- name: Install
+  command: "make install chdir={{ asterisk_src_dir }}"
+  when: not asterisk_status.stat.exists
+
+- name: Make samples
+  command: "make samples chdir={{ asterisk_src_dir }}"
+  when: not asterisk_status.stat.exists
+
+- name: Install the initscript
+  command: "make config chdir={{ asterisk_src_dir }}"
+  when: not asterisk_status.stat.exists
+
+- name: Cache library and bunch
+  command: "ldconfig chdir={{ asterisk_src_dir }}"
+  when: not asterisk_status.stat.exists
+
+- name: Delete /usr/sbin/safe_asterisk File
+  file:
+    path: "/usr/sbin/safe_asterisk"
+    state: absent
+
+- name: Create Asterisk User Group
+  group:
+    name: "{{ ASTERISK_GROUP }}"
+    state: present
+
+- name: Create Asterisk User
+  user:
+    name: "{{ ASTERISK_USER }}"
+    shell: /sbin/nologin
+    group: "{{ ASTERISK_GROUP }}"
+    create_home: no
+
+- name: Configure asterisk.conf File to set asterisk runuser asterisk
+  ini_file:
+    path: "/etc/asterisk/asterisk.conf"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { section: "files", option: "astctlpermissions", value: "0775" }
+    - { section: "files", option: "astctlowner", value: "{{ ASTERISK_USER }}" }
+    - { section: "files", option: "astctlgroup", value: "{{ ASTERISK_GROUP }}" }
+    - { section: "files", option: "astctl", value: "asterisk.ctl" }
+    - { section: "options", option: "runuser", value: "{{ ASTERISK_USER }}" }
+    - { section: "options", option: "rungroup", value: "{{ ASTERISK_GROUP }}" }
+
+- name: Set All Asterisk directory owner to asterisk user
+  file:
+    path: "{{ item }}"
+    owner: "{{ ASTERISK_USER }}"
+    group: "{{ ASTERISK_GROUP }}"
+    state: directory
+    recurse: yes
+    mode: 0750
+  with_items:
+    - /etc/asterisk
+    - /usr/lib64/asterisk/modules
+    - /var/lib/asterisk
+    - /var/spool/asterisk
+    - /var/run/asterisk
+    - /var/log/asterisk
+  register: setownership
+
+- name: Make sure the default asterisk service is enabled and started
+  service:
+    name: "asterisk"
+    enabled: yes
+    state: started
