@@ -1,9 +1,8 @@
 ---
 asterisk_src_dir: /usr/src/asterisk/
 asterisk_version: 16
-ASTERISK_GROUP: asterisk
-ASTERISK_USER: asterisk
-
+asterisk_group: asterisk
+asterisk_user: asterisk
 asterisk_cdr_user: asterisk
 asterisk_cdr_password: Qwerty123
 asterisk_cdr_table: cdr

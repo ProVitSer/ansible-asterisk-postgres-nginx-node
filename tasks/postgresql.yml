@@ -1,4 +1,4 @@
-- name: Importing specific distro variables
+- name: Importing Postgresql variables
   include_vars: "{{ item }}"
   with_items:
     - "postgresql.yml"
@@ -8,7 +8,7 @@
     name: "{{ postgresql_pkgs }}"
     state: latest
 
-- name: Initialize postgres DB
+- name: Initialize Postgresql DB
   command: /usr/bin/postgresql-setup initdb
 
 - name: Distribute Postgresql config files
@@ -21,19 +21,19 @@
   notify:
     - restart_postgresql
 
-- name: Ensuring postgresql is started and enabled
+- name: Ensuring Postgresql is started and enabled
   service:
     name: postgresql
     state: started
     enabled: True
 
-- name: Change user password
+- name: Set postgres password
   user:
     name: postgres
     update_password: on_create
     password: "{{ pg_password }}"
 
-- name: Creating Users if not empty list
+- name: Creating asterisk in postgres
   postgresql_user:
     name: "{{ asterisk_cdr_user }}"
     password: "{{ asterisk_cdr_password }}"
@@ -42,7 +42,7 @@
   loop_control:
     label: "{{ asterisk_cdr_user }}"
 
-- name: Creating Postgresql Databases
+- name: Creating AsteriskcdrDB databases in postgres
   postgresql_db: 
     name: "{{ asterisk_cdr_db }}" 
     owner: "{{ asterisk_cdr_user }}" 
@@ -51,7 +51,7 @@
   loop_control:
     label: "{{ asterisk_cdr_user }}"
 
-- name: Granting DB rights to identified user
+- name: Granting DB rights to identified Asterisk user
   postgresql_user:
     name: "{{ asterisk_cdr_user }}"
     password: "{{ asterisk_cdr_password }}"
@@ -70,7 +70,7 @@
     group: root
     mode: 0777
 
-- name: Add some dummy data to our database
+- name: Add cdr.sql in AsteriskcdrDB database
   become: true
   become_user: postgres
   shell: psql {{ asterisk_cdr_db }} < /usr/src/cdr.sql

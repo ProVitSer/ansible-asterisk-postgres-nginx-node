@@ -1,4 +1,4 @@
-- name: Asterisk PGSQL
+- name: Distribute Asterisk cdr_pgsql.conf
   template:
     src: cdr_pgsql.conf.j2
     dest: /etc/asterisk/cdr_pgsql.conf

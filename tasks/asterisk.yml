@@ -15,18 +15,18 @@
     chdir: /tmp
   when: not asterisk_status.stat.exists
 
-- name: Extract Asterisk source.
+- name: Extract Asterisk source
   unarchive:
     src: "/tmp/asterisk-{{ asterisk_version }}-current.tar.gz"
     dest: "{{ asterisk_src_dir }}"
     remote_src: "yes"
     extra_opts: ['--strip-components=1']
 
-- name: Let asterisk get mp3
+- name: Asterisk get mp3 source
   shell: "./contrib/scripts/get_mp3_source.sh chdir={{ asterisk_src_dir }}"
   when: not asterisk_status.stat.exists
 
-- name: Let asterisk install dependencies
+- name: Install Asterisk dependencies
   shell: "./contrib/scripts/install_prereq install chdir={{ asterisk_src_dir }}"
   when: not asterisk_status.stat.exists
 
@@ -64,7 +64,7 @@
   command: "make samples chdir={{ asterisk_src_dir }}"
   when: not asterisk_status.stat.exists
 
-- name: Install the initscript
+- name: Make config
   command: "make config chdir={{ asterisk_src_dir }}"
   when: not asterisk_status.stat.exists
 
@@ -79,14 +79,14 @@
 
 - name: Create Asterisk User Group
   group:
-    name: "{{ ASTERISK_GROUP }}"
+    name: "{{ asterisk_group }}"
     state: present
 
 - name: Create Asterisk User
   user:
-    name: "{{ ASTERISK_USER }}"
+    name: "{{ asterisk_user }}"
     shell: /sbin/nologin
-    group: "{{ ASTERISK_GROUP }}"
+    group: "{{ asterisk_group }}"
     create_home: no
 
 - name: Configure asterisk.conf File to set asterisk runuser asterisk
@@ -97,17 +97,17 @@
     value: "{{ item.value }}"
   with_items:
     - { section: "files", option: "astctlpermissions", value: "0775" }
-    - { section: "files", option: "astctlowner", value: "{{ ASTERISK_USER }}" }
-    - { section: "files", option: "astctlgroup", value: "{{ ASTERISK_GROUP }}" }
+    - { section: "files", option: "astctlowner", value: "{{ asterisk_user }}" }
+    - { section: "files", option: "astctlgroup", value: "{{ asterisk_group }}" }
     - { section: "files", option: "astctl", value: "asterisk.ctl" }
-    - { section: "options", option: "runuser", value: "{{ ASTERISK_USER }}" }
-    - { section: "options", option: "rungroup", value: "{{ ASTERISK_GROUP }}" }
+    - { section: "options", option: "runuser", value: "{{ asterisk_user }}" }
+    - { section: "options", option: "rungroup", value: "{{ asterisk_group }}" }
 
 - name: Set All Asterisk directory owner to asterisk user
   file:
     path: "{{ item }}"
-    owner: "{{ ASTERISK_USER }}"
-    group: "{{ ASTERISK_GROUP }}"
+    owner: "{{ asterisk_user }}"
+    group: "{{ asterisk_group }}"
     state: directory
     recurse: yes
     mode: 0750
