@@ -27,7 +27,10 @@
     - extensions.ael
     - pjsip.conf
     - res_odbc.conf
+    - cdr_adaptive_odbc.conf
+    - modules.conf
   notify:
     - load pbx_ael.so
     - reload res_odbc.so
+    - reload cdr_adaptive_odbc.so
     - restart asterisk

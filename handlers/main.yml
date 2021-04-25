@@ -27,6 +27,8 @@
 - name: load pbx_ael.so
   shell: "asterisk -x 'module load pbx_ael.so'"
 
-
 - name: reload res_odbc.so
   shell: "asterisk -x 'module reload res_odbc.so'"
+
+- name: reload cdr_adaptive_odbc.so
+  shell: "asterisk -x 'module reload cdr_adaptive_odbc.so'"

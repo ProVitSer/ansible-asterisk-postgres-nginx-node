@@ -1,0 +1,9 @@
+[modules]
+autoload=yes
+noload = chan_alsa.so
+noload = chan_console.so
+noload => res_config_pgsql.so
+noload => res_config_ldap.so
+noload => res_config_sqlite3.so
+preload => res_odbc.so
+preload => res_config_odbc.so

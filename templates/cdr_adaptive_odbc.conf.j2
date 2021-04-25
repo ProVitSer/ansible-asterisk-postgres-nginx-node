@@ -1,0 +1,7 @@
+[mytable]
+connection = {{ asterisk_cdr_db }}
+table = {{ asterisk_cdr_table }}
+loguniqueid=yes
+usegmtime = no
+;alias calldate => start
+alias end => endcall

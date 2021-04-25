@@ -13,6 +13,6 @@
 - include_tasks: postgresql.yml
 - include_tasks: nginx.yml
 - include_tasks: asterisk.yml
-#- include_tasks: node.yml
+- include_tasks: node.yml
 - include_tasks: push_configs.yml
 - include_tasks: firewalld.yml

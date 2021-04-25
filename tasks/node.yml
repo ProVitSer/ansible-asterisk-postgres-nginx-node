@@ -1,0 +1,8 @@
+---
+- name: Get Node
+  shell: "curl -fsSL https://rpm.nodesource.com/setup_15.x | bash -"
+
+- name: Install Node 
+  yum:
+    name: nodejs
+    state: latest

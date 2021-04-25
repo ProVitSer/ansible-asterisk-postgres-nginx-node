@@ -25,6 +25,7 @@ context 3cx {
 
 macro recording() {
         Set(fname=${UNIQUEID}-${STRFTIME(${EPOCH},,%Y-%m-%d-%H_%M)});
+        Set(CDR(recordingfile)=${fname}.wav);
         MixMonitor(${DIR_RECORDS}${fname}.wav,b);
         return;
 };
