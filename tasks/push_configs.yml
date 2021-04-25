@@ -1,7 +1,33 @@
-- name: Distribute Asterisk cdr_pgsql.conf
+---
+- name: Copy odbcinst.ini
   template:
-    src: cdr_pgsql.conf.j2
-    dest: /etc/asterisk/cdr_pgsql.conf
-    owner: asterisk
-    group: asterisk
-    mode: 0777
+    src: odbcinst.ini.j2
+    dest: /etc/odbcinst.ini
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy odbc.ini
+  template:
+    src: odbc.ini.j2
+    dest: /etc/odbc.ini
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy Asterisk configs
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/asterisk/{{ item }}"
+    owner: "{{ asterisk_user }}"
+    group: "{{ asterisk_group }}"
+    mode: 0644
+  with_items:
+    - cdr_odbc.conf
+    - extensions.ael
+    - pjsip.conf
+    - res_odbc.conf
+  notify:
+    - load pbx_ael.so
+    - reload res_odbc.so
+    - restart asterisk

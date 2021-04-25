@@ -1,4 +1,4 @@
-- name: Importing Postgresql variables
+- name: Include Postgresql variables
   include_vars: "{{ item }}"
   with_items:
     - "postgresql.yml"
@@ -19,7 +19,7 @@
   with_items:
     - pg_hba.conf
   notify:
-    - restart_postgresql
+    - restart postgresql
 
 - name: Ensuring Postgresql is started and enabled
   service:
@@ -51,17 +51,6 @@
   loop_control:
     label: "{{ asterisk_cdr_user }}"
 
-- name: Granting DB rights to identified Asterisk user
-  postgresql_user:
-    name: "{{ asterisk_cdr_user }}"
-    password: "{{ asterisk_cdr_password }}"
-    role_attr_flags: "NOCREATEDB,NOSUPERUSER,NOCREATEROLE"
-    db: "{{ asterisk_cdr_db }}"
-    priv: 'ALL'
-  become_user: postgres
-  loop_control:
-    label: "{{ asterisk_cdr_user }}"
-
 - name: Copy cdr table
   template:
     src: cdr.sql.j2
@@ -74,3 +63,14 @@
   become: true
   become_user: postgres
   shell: psql {{ asterisk_cdr_db }} < /usr/src/cdr.sql
+
+- name: Granting DB rights to identified Asterisk user
+  postgresql_user:
+    name: "{{ asterisk_cdr_user }}"
+    password: "{{ asterisk_cdr_password }}"
+    role_attr_flags: "NOCREATEDB,NOSUPERUSER,NOCREATEROLE"
+    db: "{{ asterisk_cdr_db }}"
+    priv: 'ALL/cdr:ALL'
+  become_user: postgres
+  loop_control:
+    label: "{{ asterisk_cdr_user }}"

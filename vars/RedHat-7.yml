@@ -42,6 +42,9 @@ packages_required:
   - libtool-ltdl-devel
   - unixODBC
   - unixODBC-devel
+  - postgresql-odbc 
+  - libtool-ltdl 
+  - libtool-ltdl-devel
   - wget
   - vim
   - net-tools

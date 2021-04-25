@@ -1,0 +1,44 @@
+---
+#- name: Include Nginx variables
+#  include_vars: "{{ item }}"
+#  with_items:
+#    - "main.yml"
+
+- name: Enable nginx repo.
+  template:
+    src: nginx.repo.j2
+    dest: /etc/yum.repos.d/nginx.repo
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Ensure nginx is installed.
+  package:
+    name: nginx
+    state: present
+
+- name: Distribute Nginx config files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/nginx/{{ item }}"
+    mode: 0600
+  with_items:
+    - nginx.conf
+  notify: 
+    - reload nginx
+
+- name: Distribute Nginx vhost files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/nginx/conf.d/{{ item }}"
+    mode: 0600
+  with_items:
+    - vhost.conf
+  notify: 
+    - reload nginx
+
+- name: Ensure nginx service is running as configured.
+  service:
+    name: nginx
+    state: started
+    enabled: true

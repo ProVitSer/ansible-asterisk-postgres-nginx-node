@@ -1,0 +1,15 @@
+[asterisk-connector]
+Description         = PostgreSQL connection to 'asterisk' database
+Driver              = PostgreSQL
+Database            = {{ asterisk_cdr_db }}
+Servername          = localhost
+UserName            = {{ asterisk_cdr_user }}
+Password            = {{ asterisk_cdr_password }}
+Port                = 5432
+Protocol            = 9.4
+ReadOnly            = No
+RowVersioning       = No
+ShowSystemTables    = No
+ShowOidColumn       = No
+FakeOidIndex        = No
+ConnSettings        =

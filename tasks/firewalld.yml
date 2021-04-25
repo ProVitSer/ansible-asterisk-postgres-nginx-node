@@ -1,0 +1,47 @@
+- name: Firewall Star and enable firewalld
+  systemd:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name:  Firewall get default Zone
+  command: firewall-cmd --get-default-zone
+  register: default_zone
+
+- debug:
+    msg: "Firewall default zone is {{ default_zone.stdout }}"
+
+- name: Firewall enable Asterisk SIP on {{ default_zone.stdout }} zone
+  firewalld:
+    zone: "{{ default_zone.stdout }}"
+    port: 5160/udp
+    permanent: yes
+    state: enabled
+
+- name: Firewall enable Asterisk AMI on {{ default_zone.stdout }} zone
+  firewalld:
+    zone: "{{ default_zone.stdout }}"
+    port: 5038/tcp
+    permanent: yes
+    state: enabled
+
+- name: Firewall enable Asterisk RTP on {{ default_zone.stdout }} zone
+  firewalld:
+    zone: "{{ default_zone.stdout }}"
+    port: 10000-20000/udp
+    permanent: yes
+    state: enabled
+
+- name: Firewall enable Node Integration port on {{ default_zone.stdout }} zone
+  firewalld:
+    zone: "{{ default_zone.stdout }}"
+    port: 7788/tcp
+    permanent: yes
+    state: enabled
+
+- name: Firewall enable HTTP Service on {{ default_zone.stdout }} zone
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+  notify: reload firewalld

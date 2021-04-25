@@ -125,6 +125,3 @@
     name: "asterisk"
     enabled: yes
     state: started
-
-- name: Load Asterisk cdr pg module
-  shell: asterisk -x "module load cdr_pgsql.so"

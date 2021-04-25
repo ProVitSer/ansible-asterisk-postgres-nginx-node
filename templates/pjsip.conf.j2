@@ -1,0 +1,43 @@
+[udp-transport]
+type=transport
+protocol=udp
+bind=0.0.0.0:5160
+
+[3cx]
+type=registration
+transport=udp-transport
+outbound_auth=3cx
+server_uri=sip:{{ ip_3cx }}
+client_uri=sip:{{ bridge_3cx_number }}@{{ ip_3cx }}
+retry_interval=60
+contact_user={{ bridge_3cx_number }}
+
+[3cx]
+type=auth
+auth_type=userpass
+password={{ bridge_3cx_password }}
+username={{ bridge_3cx_number }}
+
+[3cx]
+type=aor
+contact=sip:{{ bridge_3cx_number }}@{{ ip_3cx }}
+
+[3cx]
+type=endpoint
+transport=udp-transport
+context=3cx
+disallow=all
+allow=alaw,ulaw
+;from_user={{ bridge_3cx_number }}
+from_domain={{ ip_3cx }}
+outbound_auth=3cx
+aors=3cx
+from_user={{ bridge_3cx_number }}
+send_pai=yes
+;send_rpid=yes
+rewrite_contact=yes
+
+[3cx]
+type=identify
+endpoint=3cx
+match={{ ip_3cx }}

@@ -1,10 +1,10 @@
 ---
-- name: restart_postgresql
+- name: restart postgresql
   service:
     name: postgresql
     state: restarted
 
-- name: restart_asterisk
+- name: restart asterisk
   service:
     name: asterisk
     state: restarted
@@ -23,3 +23,10 @@
   service: 
     name: nginx 
     state: reloaded
+
+- name: load pbx_ael.so
+  shell: "asterisk -x 'module load pbx_ael.so'"
+
+
+- name: reload res_odbc.so
+  shell: "asterisk -x 'module reload res_odbc.so'"

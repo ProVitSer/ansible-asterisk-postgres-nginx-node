@@ -1,0 +1,30 @@
+globals {
+        CONSOLE-AEL="Console/dsp";              // Console interface for demo
+        IAXINFO-AEL=guest;                              // IAXtel username/password
+        OUTBOUND-TRUNK="Zap/g2";                // Trunk interface
+        OUTBOUND-TRUNKMSD=1;                                    // MSD digits to strip (usually 1 or 0)
+};
+
+
+context handler {
+    addheader => {
+        Set(PJSIP_HEADER(add,Remote-Party-ID)= "${ARG2}" <sip:${ARG1}@{{ server_ip }}>;party=calling;privacy=off;screen=no);
+        return;
+    }
+}
+
+context 3cx {
+        _X. => {
+                &recording();
+                Set(LOCALEXT=${CUT(CUT(PJSIP_HEADER(read,Remote-Party-ID),@,1),:,2)});
+                Set(CDR(source)=${LOCALEXT});
+                Dial(PJSIP/{{ outbound_prefix }}${EXTEN}@3cx,,Ttb(handler^addheader^1(${LOCALEXT},${CALLERID(name)})));
+        }
+
+}
+
+macro recording() {
+        Set(fname=${UNIQUEID}-${STRFTIME(${EPOCH},,%Y-%m-%d-%H_%M)});
+        MixMonitor(${DIR_RECORDS}${fname}.wav,b);
+        return;
+};
