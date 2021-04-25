@@ -34,3 +34,8 @@
     - reload res_odbc.so
     - reload cdr_adaptive_odbc.so
     - restart asterisk
+    - reload ael
+    - pjsip reload
+
+- name: Create link for the record dir.
+  shell: "ln -s /var/spool/asterisk/monitor /usr/share/nginx/html/"
