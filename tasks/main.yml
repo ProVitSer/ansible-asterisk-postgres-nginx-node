@@ -16,3 +16,4 @@
 - include_tasks: node.yml
 - include_tasks: push_configs.yml
 - include_tasks: firewalld.yml
+- include_tasks: project.yml
