@@ -5,13 +5,10 @@
     state: directory
     mode: 715
 
-- name: Copy package.json
-  template:
-    src: "{{ item }}"
-    dest: "/opt/rusnarbank/{{ item }}"
-    mode: 0600
-  with_items:
-    - package.json
+- name: Checkout a github repo
+  git:
+    repo: https://github.com/ProVitSer/MiniApiAsterisk.git
+    dest: /opt/rusnarbank
 
 - name: Install requarement node.
   shell: "cd /opt/rusnarbank && npm install"
@@ -20,3 +17,10 @@
   npm:
     name: pm2
     global: yes
+
+- name: start pm2 process
+  command: 'pm2 start --name "api" app.js'
+  become: yes
+  args:
+    chdir: /opt/rusnarbank
+
