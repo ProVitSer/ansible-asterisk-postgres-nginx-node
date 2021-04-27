@@ -13,12 +13,41 @@ context handler {
     }
 }
 
+context call-hangup-handler {
+    _s => {
+        NoOp({ "exten": "${CDR(source)}", "externalNumber": "${CDR(dst)}","unicueid": "${UNIQUEID}" , "disposition" : "${CDR(disposition)}", "recording": "${fname}.wav", "start" : "${CDR(start)}", "answer" : "${CDR(answer)}", "end" : "${CDR(end)}" });
+    }
+}
+
 context 3cx {
         _X. => {
                 &recording();
                 Set(LOCALEXT=${CUT(CUT(PJSIP_HEADER(read,Remote-Party-ID),@,1),:,2)});
                 Set(CDR(source)=${LOCALEXT});
+                Set(CHANNEL(hangup_handler_push)=call-hangup-handler,s,1);
                 Dial(PJSIP/{{ outbound_prefix }}${EXTEN}@3cx,,Ttb(handler^addheader^1(${LOCALEXT},${CALLERID(name)})));
+        }
+
+}
+
+context crm-3cx {
+    _x. => {
+            &recording();
+            NoOp(${EXTEN});
+            Set(CALLERID(num)=${CUT(EXTEN,:,2)});
+            Set(LOCALEXTEN=${CUT(EXTEN,:,1)});
+            NoOp(${CALLERID(num)});
+            NoOp(${LOCALEXTEN});
+            Dial(PJSIP/${LOCALEXTEN}@3cx,,Ttb(handler^addheader^1(${CALLERID(num)},${CALLERID(num)})));
+    }
+}
+
+context crm-external {
+        _X. => {
+                &recording();
+                Set(CDR(source)=${var1});
+                Set(CHANNEL(hangup_handler_push)=call-hangup-handler,s,1);
+                Dial(PJSIP/123${EXTEN}@3cx,,Ttb(handler^addheader^1(${var1},${var1})));
         }
 
 }
