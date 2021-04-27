@@ -1,1 +1,6 @@
 ---
+outbound_prefix: 123 
+server_ip: server ip
+ip_3cx: 3cx ip
+bridge_3cx_number: bridge id
+bridge_3cx_password: bridge password
