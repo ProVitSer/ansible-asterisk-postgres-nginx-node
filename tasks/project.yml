@@ -1,0 +1,22 @@
+---
+- name: Create a directory if it does not exist
+  file:
+    path: /opt/rusnarbank
+    state: directory
+    mode: 715
+
+- name: Copy package.json
+  template:
+    src: "{{ item }}"
+    dest: "/opt/rusnarbank/{{ item }}"
+    mode: 0600
+  with_items:
+    - package.json
+
+- name: Install requarement node.
+  shell: "cd /opt/rusnarbank && npm install"
+
+- name: Install PM2.
+  npm:
+    name: pm2
+    global: yes
