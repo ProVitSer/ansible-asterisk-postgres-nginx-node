@@ -1,0 +1,12 @@
+[general]
+enabled = yes
+webenabled = yes
+port = 5038
+bindaddr = 127.0.0.1
+
+[{{ asterisk_ami_user }}]
+secret={{ asterisk_ami_password }}
+deny=0.0.0.0/0.0.0.0
+permit=0.0.0.0/0.0.0.0
+read = system,call,log,verbose,agent,user,config,dtmf,reporting,cdr,dialplan
+write = system,call,agent,user,config,command,reporting,originate,message
