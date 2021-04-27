@@ -28,10 +28,10 @@
   shell: "asterisk -x 'module load pbx_ael.so'"
 
 - name: reload res_odbc.so
-  shell: "asterisk -x 'module reload res_odbc.so'"
+  shell: "asterisk -x 'module load res_odbc.so'"
 
 - name: reload cdr_adaptive_odbc.so
-  shell: "asterisk -x 'module reload cdr_adaptive_odbc.so'"
+  shell: "asterisk -x 'module load cdr_adaptive_odbc.so'"
 
 - name: reload ael
   shell: "asterisk -x 'ael reload'"
