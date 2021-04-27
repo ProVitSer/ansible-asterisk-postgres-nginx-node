@@ -1,23 +1,26 @@
 ---
 asterisk_src_dir: /usr/src/asterisk/
 asterisk_version: 16
+record_dir: /usr/share/nginx/html/monitor
+
+
 asterisk_group: asterisk
 asterisk_user: asterisk
+
 asterisk_cdr_user: asterisk
-asterisk_cdr_password: Qwerty123
+asterisk_cdr_password: eK4jI4qZ1kZ8tL9c
 asterisk_cdr_table: cdr
 asterisk_cdr_db: asteriskcdrdb
-asterisk_config_path: ../files/asterisk/
 
+asterisk_ami_user: amiuser
+asterisk_ami_password: hI7eR8pP9lM8zE7g
 
-outbound_prefix: 123 
-server_ip: 195.2.85.165
-ip_3cx: 185.231.153.101
-bridge_3cx_number: 10015
-bridge_3cx_password: 3FGrTqa39e
-pg_password: admin123033
-
+pg_password: hT4kS8uS4nT1oE5l
 
 nginx_conf_path: /etc/nginx/conf.d
 nginx_vhost_path: /etc/nginx/conf.d
-record_dir: /usr/share/nginx/html/monitor
+
+
+
+
+
