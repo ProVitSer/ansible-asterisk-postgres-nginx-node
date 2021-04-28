@@ -44,11 +44,12 @@
   with_items:
     - extensions.ael
     - pjsip.conf
+
+- name: Core reload Asterisk
+  command: "asterisk -x 'core reload'"
   notify:
-    - load pbx_ael.so
     - reload res_odbc.so
     - reload cdr_adaptive_odbc.so
-    - restart asterisk
     - reload ael
     - reload pjsip
 
