@@ -51,3 +51,4 @@ packages_required:
   - tcpdump
   - git
   - crontabs
+  - lame
