@@ -3,6 +3,7 @@ globals {
         IAXINFO-AEL=guest;                              // IAXtel username/password
         OUTBOUND-TRUNK="Zap/g2";                // Trunk interface
         OUTBOUND-TRUNKMSD=1;                                    // MSD digits to strip (usually 1 or 0)
+        DIR_RECORDS=/var/spool/asterisk/monitor/;
 };
 
 
@@ -15,13 +16,28 @@ context handler {
 
 context call-hangup-handler {
     _s => {
+        switch (${DIALSTATUS}) {
+                        case BUSY:
+                                Set(CDR(recordingfile)=null);
+                                Set(CDR(callsec)=0);
+                                break;
+                        case NOANSWER:
+                                Set(CDR(recordingfile)=null);
+                                Set(CDR(callsec)=0);
+                                break;
+                        case CANCEL:
+                                Set(CDR(recordingfile)=null);
+                                Set(CDR(callsec)=0);
+                        default:
+                                Set(CDR(callsec)=${CDR(billsec)});
+        }
         NoOp({ "exten": "${CDR(source)}", "externalNumber": "${CDR(dst)}","unicueid": "${UNIQUEID}" , "disposition" : "${CDR(disposition)}", "recording": "${fname}.wav", "start" : "${CDR(start)}", "answer" : "${CDR(answer)}", "end" : "${CDR(end)}" });
     }
 }
 
 context 3cx {
         _X. => {
-                &recording();
+                //&recording();
                 Set(LOCALEXT=${CUT(CUT(PJSIP_HEADER(read,Remote-Party-ID),@,1),:,2)});
                 Set(CDR(source)=${LOCALEXT});
                 Set(CHANNEL(hangup_handler_push)=call-hangup-handler,s,1);
@@ -32,7 +48,7 @@ context 3cx {
 
 context crm-3cx {
     _x. => {
-            &recording();
+            //&recording();
             NoOp(${EXTEN});
             Set(CALLERID(num)=${CUT(EXTEN,:,2)});
             Set(LOCALEXTEN=${CUT(EXTEN,:,1)});
@@ -54,7 +70,9 @@ context crm-external {
 
 macro recording() {
         Set(fname=${UNIQUEID}-${STRFTIME(${EPOCH},,%Y-%m-%d-%H_%M)});
-        Set(CDR(recordingfile)=${fname}.wav);
-        MixMonitor(${DIR_RECORDS}${fname}.wav,b);
+        Set(CDR(recordingfile)=${fname}.mp3);
+        Set(monopt=nice -n 19 /usr/bin/lame -b 32  --silent "${DIR_RECORDS}${fname}.wav"  "${DIR_RECORDS}${fname}.mp3" && rm -f "${DIR_RECORDS}${fname}.wav" && chmod o+r "${DIR_RECORDS}${fname}.mp3");
+        MixMonitor(${DIR_RECORDS}${fname}.wav,b,${monopt});
         return;
 };
+(E
