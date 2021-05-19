@@ -5,10 +5,22 @@
     state: directory
     mode: 715
 
-- name: Checkout a github repo
-  git:
-    repo: https://github.com/ProVitSer/MiniApiAsterisk.git
+#- name: Checkout a github repo
+#  git:
+#    repo: https://github.com/ProVitSer/MiniApiAsterisk.git
+#    dest: /opt/rusnarbank
+
+- name: Copy odbc.ini
+  copy:
+    src: "{{ item }}"
     dest: /opt/rusnarbank
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{ files }}"
+  vars:
+    files:
+      - "MiniApiAsterisk/"
 
 - name: Install requarement node.
   shell: "cd /opt/rusnarbank && npm install"
