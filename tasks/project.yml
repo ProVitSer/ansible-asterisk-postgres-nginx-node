@@ -10,7 +10,7 @@
 #    repo: https://github.com/ProVitSer/MiniApiAsterisk.git
 #    dest: /opt/rusnarbank
 
-- name: Copy odbc.ini
+- name: Copy Project
   copy:
     src: "{{ item }}"
     dest: /opt/rusnarbank
